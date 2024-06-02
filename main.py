@@ -60,23 +60,20 @@ def plot_results(X, y, w, b, a, b_line, c_line):
     plt.ylim([-1, 1])
     plt.show()
 
+# num_points = 10
+# num_runs = 1000
 
-num_points = [10, 100]
-num_runs = 1000
-for i in range(len(num_points)):
-    mean_iterations, mean_disagreement = experiment(num_runs, num_points[i])
-    print(f"Média de iterações até a convergência: {mean_iterations}")
-    print(f"Média de divergência entre f e g: {mean_disagreement}")
+# mean_iterations, mean_disagreement = experiment(num_runs, num_points)
+# print(f"Média de iterações até a convergência: {mean_iterations}")
+# print(f"Média de divergência entre f e g: {mean_disagreement}")
 
-    # Plotar um exemplo
-    a, b, c = generate_target_function()
-    X, y = generate_data(num_points[i], a, b, c)
-    w, w_0, iterations = perceptron_learning_algorithm(X, y)
+# a, b, c = generate_target_function()
+# X, y = generate_data(num_points, a, b, c)
+# w, w_0, iterations = perceptron_learning_algorithm(X, y)
 
-    disagreement, X_test, y_test = calculate_disagreement(w, w_0, a, b, c)
+# disagreement, X_test, y_test = calculate_disagreement(w, w_0, a, b, c)
 
-    plot_results(X_test[:100], y_test[:100], w, w_0, a, b, c)
-
+# plot_results(X_test[:100], y_test[:100], w, w_0, a, b, c)
 
 def linear_regression(X, y):
     X_b = np.c_[np.ones((X.shape[0], 1)), X] 
@@ -125,20 +122,19 @@ def experiment_rg_pla(num_runs, num_points_train):
         iterations_list.append(iterations)
     return np.mean(iterations_list), np.std(iterations_list)
 
-num_runs = 1000
-num_points_test = 1000
-num_points_train = [10, 100]
+# num_runs = 1000
+# num_points_test = 1000
+# num_points_train = 10
 
-for i in range(len(num_points_train)):
-    mean_ein, std_ein, mean_eout, std_eout = experiment_rg(num_runs, num_points_train[i], num_points_test)
-    print(f"Média de E_in: {mean_ein}")
-    print(f"Desvio padrão de E_in: {std_ein}")
-    print(f"Média de E_out: {mean_eout}")
-    print(f"Desvio padrão de E_out: {std_eout}")
+# mean_ein, std_ein, mean_eout, std_eout = experiment_rg(num_runs, num_points_train, num_points_test)
+# print(f"Média de E_in: {mean_ein}")
+# print(f"Desvio padrão de E_in: {std_ein}")
+# print(f"Média de E_out: {mean_eout}")
+# print(f"Desvio padrão de E_out: {std_eout}")
 
-    mean_iterations, std_iterations = experiment_rg_pla(num_runs, num_points_train[i])
-    print(f"Média de iterações até a convergência do PLA: {mean_iterations}")
-    print(f"Desvio padrão de iterações: {std_iterations}")
+# mean_iterations, std_iterations = experiment_rg_pla(num_runs, num_points_train)
+# print(f"Média de iterações até a convergência do PLA: {mean_iterations}")
+# print(f"Desvio padrão de iterações: {std_iterations}")
 
 def generate_noisy_data(N, a, b, c, noise_ratio=0.0):
     X = np.random.uniform(-1, 1, (N, 2))
@@ -236,12 +232,12 @@ def experiment(num_runs, num_points):
         ein_list.append(ein)
     return np.mean(ein_list), np.std(ein_list)
 
-num_runs = 1000
-num_points = 1000
+# num_runs = 1000
+# num_points = 1000
 
-mean_ein, std_ein = experiment(num_runs, num_points)
-print(f"Média de E_in: {mean_ein}")
-print(f"Desvio padrão de E_in: {std_ein}")
+# mean_ein, std_ein = experiment(num_runs, num_points)
+# print(f"Média de E_in: {mean_ein}")
+# print(f"Desvio padrão de E_in: {std_ein}")
 
 def transform_data(X):
     x1, x2 = X[:, 0], X[:, 1]
@@ -262,26 +258,26 @@ def experiment(num_runs, num_points):
     weights_mean = np.mean(weights_list, axis=0)
     return weights_mean
 
-num_runs = 1000
-num_points = 1000
+# num_runs = 1000
+# num_points = 1000
 
-weights_mean = experiment(num_runs, num_points)
-print(f"Pesos médios após 1000 execuções: {weights_mean}")
+# weights_mean = experiment(num_runs, num_points)
+# print(f"Pesos médios após 1000 execuções: {weights_mean}")
 
-hypotheses = {
-    "a": np.array([-1, -0.05, 0.08, 0.13, 1.5, 1.5]),
-    "b": np.array([-1, -0.05, 0.08, 0.13, 1.5, 15]),
-    "c": np.array([-1, -0.05, 0.08, 0.13, 15, 1.5]),
-    "d": np.array([-1, -1.5, 0.08, 0.13, 0.05, 0.05]),
-    "e": np.array([-1, -0.05, 0.08, 1.5, 0.15, 0.15]),
-}
+# hypotheses = {
+#     "a": np.array([-1, -0.05, 0.08, 0.13, 1.5, 1.5]),
+#     "b": np.array([-1, -0.05, 0.08, 0.13, 1.5, 15]),
+#     "c": np.array([-1, -0.05, 0.08, 0.13, 15, 1.5]),
+#     "d": np.array([-1, -1.5, 0.08, 0.13, 0.05, 0.05]),
+#     "e": np.array([-1, -0.05, 0.08, 1.5, 0.15, 0.15]),
+# }
 
-for key, hypothesis in hypotheses.items():
-    distance = np.linalg.norm(weights_mean - hypothesis)
-    print(f"Distância da hipótese {key}: {distance}")
+# for key, hypothesis in hypotheses.items():
+#     distance = np.linalg.norm(weights_mean - hypothesis)
+#     print(f"Distância da hipótese {key}: {distance}")
 
-closest_hypothesis = min(hypotheses, key=lambda k: np.linalg.norm(weights_mean - hypotheses[k]))
-print(f"Hipótese mais próxima: {closest_hypothesis}")
+# closest_hypothesis = min(hypotheses, key=lambda k: np.linalg.norm(weights_mean - hypotheses[k]))
+# print(f"Hipótese mais próxima: {closest_hypothesis}")
 
 def calculate_eout(X, y, w):
     predictions = np.sign(X.dot(w))
@@ -299,10 +295,10 @@ def experiment(num_runs, num_points_train, num_points_test):
         eout_list.append(eout)
     return np.mean(eout_list), np.std(eout_list)
 
-num_runs = 1000
-num_points_train = 1000
-num_points_test = 1000
+# num_runs = 1000
+# num_points_train = 1000
+# num_points_test = 1000
 
-mean_eout, std_eout = experiment(num_runs, num_points_train, num_points_test)
-print(f"Média de E_out: {mean_eout}")
-print(f"Desvio padrão de E_out: {std_eout}")
+# mean_eout, std_eout = experiment(num_runs, num_points_train, num_points_test)
+# print(f"Média de E_out: {mean_eout}")
+# print(f"Desvio padrão de E_out: {std_eout}")
