@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+# Função para gerar a função target (reta aleatória no plano)
 def generate_target_function():
     points = np.random.uniform(-1, 1, (2, 2))
     a = points[1, 1] - points[0, 1]
@@ -8,14 +9,17 @@ def generate_target_function():
     c = points[1, 0] * points[0, 1] - points[0, 0] * points[1, 1]
     return a, b, c
 
+# Função target para classificação
 def target_function(a, b, c, x):
     return np.sign(a * x[:, 0] + b * x[:, 1] + c)
 
+# Gerar dados de treinamento com a função target
 def generate_data(N, a, b, c):
     X = np.random.uniform(-1, 1, (N, 2))
     y = target_function(a, b, c, X)
     return X, y
 
+# Algoritmo de Aprendizagem Perceptron
 def perceptron_learning_algorithm(X, y):
     w = np.zeros(X.shape[1])
     b = 0
@@ -31,6 +35,7 @@ def perceptron_learning_algorithm(X, y):
         iterations += 1
     return w, b, iterations
 
+# Calcular desacordo (erro de classificação)
 def calculate_disagreement(w, w_0, a, b, c, N=10000):
     X_test = np.random.uniform(-1, 1, (N, 2))
     y_test = target_function(a, b, c, X_test)
@@ -38,7 +43,8 @@ def calculate_disagreement(w, w_0, a, b, c, N=10000):
     disagreement = np.mean(y_test != y_pred)
     return disagreement, X_test, y_test
 
-def experiment(num_runs, num_points):
+# Executar experimento com Perceptron Learning Algorithm
+def experiment_perceptron(num_runs, num_points):
     iterations_list = []
     disagreement_list = []
     for _ in range(num_runs):
@@ -50,7 +56,8 @@ def experiment(num_runs, num_points):
         disagreement_list.append(disagreement)
     return np.mean(iterations_list), np.mean(disagreement_list)
 
-def plot_results(X, y, w, b, a, b_line, c_line):
+# Plotar resultados do Perceptron Learning Algorithm
+def plot_perceptron_results(X, y, w, b, a, b_line, c_line):
     plt.scatter(X[:, 0], X[:, 1], c=y, cmap='bwr', alpha=0.7)
     x_vals = np.linspace(-1, 1, 100)
     plt.plot(x_vals, -(a / b_line) * x_vals - c_line / b_line, 'k-', label='Target Function')
@@ -60,31 +67,34 @@ def plot_results(X, y, w, b, a, b_line, c_line):
     plt.ylim([-1, 1])
     plt.show()
 
-# num_points = 10
-# num_runs = 1000
+# Parâmetros do experimento
+num_points = 10
+num_runs = 1000
 
-# mean_iterations, mean_disagreement = experiment(num_runs, num_points)
-# print(f"Média de iterações até a convergência: {mean_iterations}")
-# print(f"Média de divergência entre f e g: {mean_disagreement}")
+# Executar experimento Perceptron e plotar resultados
+mean_iterations, mean_disagreement = experiment_perceptron(num_runs, num_points)
+print(f"Média de iterações até a convergência: {mean_iterations}")
+print(f"Média de divergência entre f e g: {mean_disagreement}")
 
-# a, b, c = generate_target_function()
-# X, y = generate_data(num_points, a, b, c)
-# w, w_0, iterations = perceptron_learning_algorithm(X, y)
+a, b, c = generate_target_function()
+X, y = generate_data(num_points, a, b, c)
+w, w_0, iterations = perceptron_learning_algorithm(X, y)
+disagreement, X_test, y_test = calculate_disagreement(w, w_0, a, b, c)
+plot_perceptron_results(X_test[:100], y_test[:100], w, w_0, a, b, c)
 
-# disagreement, X_test, y_test = calculate_disagreement(w, w_0, a, b, c)
-
-# plot_results(X_test[:100], y_test[:100], w, w_0, a, b, c)
-
+# Regressão Linear
 def linear_regression(X, y):
     X_b = np.c_[np.ones((X.shape[0], 1)), X] 
     w = np.linalg.pinv(X_b.T.dot(X_b)).dot(X_b.T).dot(y) 
     return w
 
+# Calcular erro de classificação
 def calculate_error(X, y, w):
     X_b = np.c_[np.ones((X.shape[0], 1)), X]
     predictions = np.sign(X_b.dot(w))
     return np.mean(predictions != y)
 
+# Algoritmo de Aprendizagem Perceptron inicializado com Regressão Linear
 def pla(X, y, w):
     X_b = np.c_[np.ones((X.shape[0], 1)), X]
     iterations = 0
@@ -98,6 +108,7 @@ def pla(X, y, w):
         iterations += 1
     return iterations
 
+# Experimento com Regressão Linear e calcular E_in e E_out
 def experiment_rg(num_runs, num_points_train, num_points_test):
     ein_list = []
     eout_list = []
@@ -112,6 +123,7 @@ def experiment_rg(num_runs, num_points_train, num_points_test):
         eout_list.append(eout)
     return np.mean(ein_list), np.std(ein_list), np.mean(eout_list), np.std(eout_list)
 
+# Experimento com Perceptron Learning Algorithm inicializado com Regressão Linear
 def experiment_rg_pla(num_runs, num_points_train):
     iterations_list = []
     for _ in range(num_runs):
@@ -122,20 +134,22 @@ def experiment_rg_pla(num_runs, num_points_train):
         iterations_list.append(iterations)
     return np.mean(iterations_list), np.std(iterations_list)
 
-# num_runs = 1000
-# num_points_test = 1000
-# num_points_train = 10
+# Parâmetros do experimento Regressão Linear e Perceptron
+num_runs = 1000
+num_points_test = 1000
+num_points_train = 10
 
-# mean_ein, std_ein, mean_eout, std_eout = experiment_rg(num_runs, num_points_train, num_points_test)
-# print(f"Média de E_in: {mean_ein}")
-# print(f"Desvio padrão de E_in: {std_ein}")
-# print(f"Média de E_out: {mean_eout}")
-# print(f"Desvio padrão de E_out: {std_eout}")
+mean_ein, std_ein, mean_eout, std_eout = experiment_rg(num_runs, num_points_train, num_points_test)
+print(f"Média de E_in: {mean_ein}")
+print(f"Desvio padrão de E_in: {std_ein}")
+print(f"Média de E_out: {mean_eout}")
+print(f"Desvio padrão de E_out: {std_eout}")
 
-# mean_iterations, std_iterations = experiment_rg_pla(num_runs, num_points_train)
-# print(f"Média de iterações até a convergência do PLA: {mean_iterations}")
-# print(f"Desvio padrão de iterações: {std_iterations}")
+mean_iterations, std_iterations = experiment_rg_pla(num_runs, num_points_train)
+print(f"Média de iterações até a convergência do PLA: {mean_iterations}")
+print(f"Desvio padrão de iterações: {std_iterations}")
 
+# Função para gerar dados com ruído
 def generate_noisy_data(N, a, b, c, noise_ratio=0.0):
     X = np.random.uniform(-1, 1, (N, 2))
     y = target_function(a, b, c, X)
@@ -145,6 +159,7 @@ def generate_noisy_data(N, a, b, c, noise_ratio=0.0):
         y[noisy_indices] = -y[noisy_indices]
     return X, y
 
+# Pocket PLA
 def pocket_pla(X, y, w_init, max_iterations):
     X_b = np.c_[np.ones((X.shape[0], 1)), X]
     w_pocket = w_init
@@ -163,7 +178,8 @@ def pocket_pla(X, y, w_init, max_iterations):
             w_pocket = w.copy()
     return w_pocket, best_error
 
-def plot_results(X, y, w, a, b, c, title):
+# Plotar resultados do Pocket PLA
+def plot_pocket_results(X, y, w, a, b, c, title):
     plt.scatter(X[:, 0], X[:, 1], c=y, cmap='bwr', alpha=0.7)
     x_vals = np.linspace(-1, 1, 100)
     plt.plot(x_vals, -(a / b) * x_vals - c / b, 'k-', label='Target Function')
@@ -174,7 +190,8 @@ def plot_results(X, y, w, a, b, c, title):
     plt.legend()
     plt.show()
 
-def experiment(num_runs, num_points_train, num_points_test, max_iterations, initialize_with_linear_regression):
+# Experimento com Pocket PLA
+def experiment_pocket(num_runs, num_points_train, num_points_test, max_iterations, initialize_with_linear_regression):
     ein_list = []
     eout_list = []
     for _ in range(num_runs):
@@ -190,31 +207,35 @@ def experiment(num_runs, num_points_train, num_points_test, max_iterations, init
         ein_list.append(ein)
         eout_list.append(eout)
         if _ == 0:
-            plot_results(X_test, y_test, w_pocket, a, b, c, f'Test Data with Pocket PLA Hypothesis\n{max_iterations} Iterations, {"Linear Regression" if initialize_with_linear_regression else "Zero"} Initialization')
+            plot_pocket_results(X_test, y_test, w_pocket, a, b, c, f'Test Data with Pocket PLA Hypothesis\n{max_iterations} Iterations, {"Linear Regression" if initialize_with_linear_regression else "Zero"} Initialization')
     return np.mean(ein_list), np.std(ein_list), np.mean(eout_list), np.std(eout_list)
 
-# num_runs = 1000
-# num_points_train = 100
-# num_points_test = 1000
+# Parâmetros do experimento Pocket PLA
+num_runs = 1000
+num_points_train = 100
+num_points_test = 1000
 
-# cases = [
-#     {"description": "(a) Inicializando com 0, i = 10; N1 = 100; N2 = 1000.", "max_iterations": 10, "initialize_with_linear_regression": False},
-#     {"description": "(b) Inicializando com 0, i = 50; N1 = 100; N2 = 1000.", "max_iterations": 50, "initialize_with_linear_regression": False},
-#     {"description": "(c) Inicializando com Regressão Linear, i = 10; N1 = 100; N2 = 1000.", "max_iterations": 10, "initialize_with_linear_regression": True},
-#     {"description": "(d) Inicializando com Regressão Linear, i = 50; N1 = 100; N2 = 1000.", "max_iterations": 50, "initialize_with_linear_regression": True},
-# ]
+cases = [
+    {"description": "(a) Inicializando com 0, i = 10; N1 = 100; N2 = 1000.", "max_iterations": 10, "initialize_with_linear_regression": False},
+    {"description": "(b) Inicializando com 0, i = 50; N1 = 100; N2 = 1000.", "max_iterations": 50, "initialize_with_linear_regression": False},
+    {"description": "(c) Inicializando com Regressão Linear, i = 10; N1 = 100; N2 = 1000.", "max_iterations": 10, "initialize_with_linear_regression": True},
+    {"description": "(d) Inicializando com Regressão Linear, i = 50; N1 = 100; N2 = 1000.", "max_iterations": 50, "initialize_with_linear_regression": True},
+]
 
-# for case in cases:
-#     mean_ein, std_ein, mean_eout, std_eout = experiment(num_runs, num_points_train, num_points_test, case["max_iterations"], case["initialize_with_linear_regression"])
-#     print(f"{case['description']}")
-#     print(f"  Média de E_in: {mean_ein}")
-#     print(f"  Desvio padrão de E_in: {std_ein}")
-#     print(f"  Média de E_out: {mean_eout}")
-#     print(f"  Desvio padrão de E_out: {std_eout}\n")
+# Executar experimento Pocket PLA e imprimir resultados
+for case in cases:
+    mean_ein, std_ein, mean_eout, std_eout = experiment_pocket(num_runs, num_points_train, num_points_test, case["max_iterations"], case["initialize_with_linear_regression"])
+    print(f"{case['description']}")
+    print(f"  Média de E_in: {mean_ein}")
+    print(f"  Desvio padrão de E_in: {std_ein}")
+    print(f"  Média de E_out: {mean_eout}")
+    print(f"  Desvio padrão de E_out: {std_eout}\n")
 
+# Função target não-linear
 def non_linear_target_function(x1, x2):
     return np.sign(x1**2 + x2**2 - 0.6)
 
+# Gerar dados fixos com ruído
 def generate_fixed_noisy_data(N, noisy_ratio = 0.1):
     X = np.random.uniform(-1, 1, (N, 2))
     y = non_linear_target_function(X[:, 0], X[:, 1])
@@ -223,7 +244,8 @@ def generate_fixed_noisy_data(N, noisy_ratio = 0.1):
     y[noisy_indices] = -y[noisy_indices]
     return X, y
 
-def experiment(num_runs, num_points):
+# Experimento para calcular E_in com Regressão Linear simples
+def experiment_non_linear_rg(num_runs, num_points):
     ein_list = []
     for _ in range(num_runs):
         X, y = generate_fixed_noisy_data(num_points)
@@ -232,23 +254,28 @@ def experiment(num_runs, num_points):
         ein_list.append(ein)
     return np.mean(ein_list), np.std(ein_list)
 
-# num_runs = 1000
-# num_points = 1000
+# Parâmetros do experimento não-linear
+num_runs = 1000
+num_points = 1000
 
-# mean_ein, std_ein = experiment(num_runs, num_points)
-# print(f"Média de E_in: {mean_ein}")
-# print(f"Desvio padrão de E_in: {std_ein}")
+# Executar experimento e imprimir resultados para Regressão Linear não-linear
+mean_ein, std_ein = experiment_non_linear_rg(num_runs, num_points)
+print(f"Média de E_in: {mean_ein}")
+print(f"Desvio padrão de E_in: {std_ein}")
 
+# Transformar dados para Regressão Linear não-linear
 def transform_data(X):
     x1, x2 = X[:, 0], X[:, 1]
     X_transformed = np.c_[np.ones(X.shape[0]), x1, x2, x1 * x2, x1**2, x2**2]
     return X_transformed
 
+# Regressão Linear simples
 def linear_regression_simple(X, y):
     w = np.linalg.pinv(X.T.dot(X)).dot(X.T).dot(y)
     return w
 
-def experiment(num_runs, num_points):
+# Experimento para calcular pesos médios com Regressão Linear não-linear
+def experiment_non_linear_rg_weights(num_runs, num_points):
     weights_list = []
     for _ in range(num_runs):
         X, y = generate_fixed_noisy_data(num_points)
@@ -258,47 +285,51 @@ def experiment(num_runs, num_points):
     weights_mean = np.mean(weights_list, axis=0)
     return weights_mean
 
-# num_runs = 1000
-# num_points = 1000
+# Executar experimento e imprimir resultados dos pesos médios
+weights_mean = experiment_non_linear_rg_weights(num_runs, num_points)
+print(f"Pesos médios após 1000 execuções: {weights_mean}")
 
-# weights_mean = experiment(num_runs, num_points)
-# print(f"Pesos médios após 1000 execuções: {weights_mean}")
+# Hipóteses a serem comparadas
+hypotheses = {
+    "a": np.array([-1, -0.05, 0.08, 0.13, 1.5, 1.5]),
+    "b": np.array([-1, -0.05, 0.08, 0.13, 1.5, 15]),
+    "c": np.array([-1, -0.05, 0.08, 0.13, 15, 1.5]),
+    "d": np.array([-1, -1.5, 0.08, 0.13, 0.05, 0.05]),
+    "e": np.array([-1, -0.05, 0.08, 1.5, 0.15, 0.15]),
+}
 
-# hypotheses = {
-#     "a": np.array([-1, -0.05, 0.08, 0.13, 1.5, 1.5]),
-#     "b": np.array([-1, -0.05, 0.08, 0.13, 1.5, 15]),
-#     "c": np.array([-1, -0.05, 0.08, 0.13, 15, 1.5]),
-#     "d": np.array([-1, -1.5, 0.08, 0.13, 0.05, 0.05]),
-#     "e": np.array([-1, -0.05, 0.08, 1.5, 0.15, 0.15]),
-# }
+# Calcular a distância entre os pesos médios e cada hipótese
+for key, hypothesis in hypotheses.items():
+    distance = np.linalg.norm(weights_mean - hypothesis)
+    print(f"Distância da hipótese {key}: {distance}")
 
-# for key, hypothesis in hypotheses.items():
-#     distance = np.linalg.norm(weights_mean - hypothesis)
-#     print(f"Distância da hipótese {key}: {distance}")
+# Encontrar a hipótese mais próxima
+closest_hypothesis = min(hypotheses, key=lambda k: np.linalg.norm(weights_mean - hypotheses[k]))
+print(f"Hipótese mais próxima: {closest_hypothesis}")
 
-# closest_hypothesis = min(hypotheses, key=lambda k: np.linalg.norm(weights_mean - hypotheses[k]))
-# print(f"Hipótese mais próxima: {closest_hypothesis}")
-
+# Calcular E_out
 def calculate_eout(X, y, w):
     predictions = np.sign(X.dot(w))
     return np.mean(predictions != y)
 
-def experiment(num_runs, num_points_train, num_points_test):
+# Experimento para calcular E_out com Regressão Linear não-linear
+def experiment_non_linear_eout(num_runs, num_points_train, num_points_test):
     eout_list = []
     for _ in range(num_runs):
         X_train, y_train = generate_fixed_noisy_data(num_points_train)
         X_train_transformed = transform_data(X_train)
-        w = linear_regression_simple(X_train_transformed, y_train)        
+        w = linear_regression_simple(X_train_transformed, y_train)
         X_test, y_test = generate_fixed_noisy_data(num_points_test, noisy_ratio=0.0)
         X_test_transformed = transform_data(X_test)
         eout = calculate_eout(X_test_transformed, y_test, w)
         eout_list.append(eout)
     return np.mean(eout_list), np.std(eout_list)
 
-num_runs = 1000
+# Parâmetros do experimento não-linear
 num_points_train = 1000
 num_points_test = 1000
 
-mean_eout, std_eout = experiment(num_runs, num_points_train, num_points_test)
+# Executar experimento e imprimir resultados para E_out
+mean_eout, std_eout = experiment_non_linear_eout(num_runs, num_points_train, num_points_test)
 print(f"Média de E_out: {mean_eout}")
 print(f"Desvio padrão de E_out: {std_eout}")
