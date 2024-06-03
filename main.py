@@ -193,32 +193,32 @@ def experiment(num_runs, num_points_train, num_points_test, max_iterations, init
             plot_results(X_test, y_test, w_pocket, a, b, c, f'Test Data with Pocket PLA Hypothesis\n{max_iterations} Iterations, {"Linear Regression" if initialize_with_linear_regression else "Zero"} Initialization')
     return np.mean(ein_list), np.std(ein_list), np.mean(eout_list), np.std(eout_list)
 
-num_runs = 1000
-num_points_train = 100
-num_points_test = 1000
+# num_runs = 1000
+# num_points_train = 100
+# num_points_test = 1000
 
-cases = [
-    {"description": "(a) Inicializando com 0, i = 10; N1 = 100; N2 = 1000.", "max_iterations": 10, "initialize_with_linear_regression": False},
-    {"description": "(b) Inicializando com 0, i = 50; N1 = 100; N2 = 1000.", "max_iterations": 50, "initialize_with_linear_regression": False},
-    {"description": "(c) Inicializando com Regressão Linear, i = 10; N1 = 100; N2 = 1000.", "max_iterations": 10, "initialize_with_linear_regression": True},
-    {"description": "(d) Inicializando com Regressão Linear, i = 50; N1 = 100; N2 = 1000.", "max_iterations": 50, "initialize_with_linear_regression": True},
-]
+# cases = [
+#     {"description": "(a) Inicializando com 0, i = 10; N1 = 100; N2 = 1000.", "max_iterations": 10, "initialize_with_linear_regression": False},
+#     {"description": "(b) Inicializando com 0, i = 50; N1 = 100; N2 = 1000.", "max_iterations": 50, "initialize_with_linear_regression": False},
+#     {"description": "(c) Inicializando com Regressão Linear, i = 10; N1 = 100; N2 = 1000.", "max_iterations": 10, "initialize_with_linear_regression": True},
+#     {"description": "(d) Inicializando com Regressão Linear, i = 50; N1 = 100; N2 = 1000.", "max_iterations": 50, "initialize_with_linear_regression": True},
+# ]
 
-for case in cases:
-    mean_ein, std_ein, mean_eout, std_eout = experiment(num_runs, num_points_train, num_points_test, case["max_iterations"], case["initialize_with_linear_regression"])
-    print(f"{case['description']}")
-    print(f"  Média de E_in: {mean_ein}")
-    print(f"  Desvio padrão de E_in: {std_ein}")
-    print(f"  Média de E_out: {mean_eout}")
-    print(f"  Desvio padrão de E_out: {std_eout}\n")
+# for case in cases:
+#     mean_ein, std_ein, mean_eout, std_eout = experiment(num_runs, num_points_train, num_points_test, case["max_iterations"], case["initialize_with_linear_regression"])
+#     print(f"{case['description']}")
+#     print(f"  Média de E_in: {mean_ein}")
+#     print(f"  Desvio padrão de E_in: {std_ein}")
+#     print(f"  Média de E_out: {mean_eout}")
+#     print(f"  Desvio padrão de E_out: {std_eout}\n")
 
 def non_linear_target_function(x1, x2):
     return np.sign(x1**2 + x2**2 - 0.6)
 
-def generate_fixed_noisy_data(N):
+def generate_fixed_noisy_data(N, noisy_ratio = 0.1):
     X = np.random.uniform(-1, 1, (N, 2))
     y = non_linear_target_function(X[:, 0], X[:, 1])
-    num_noisy_points = int(N * 0.1)
+    num_noisy_points = int(N * noisy_ratio)
     noisy_indices = np.random.choice(N, num_noisy_points, replace=False)
     y[noisy_indices] = -y[noisy_indices]
     return X, y
@@ -251,7 +251,7 @@ def linear_regression_simple(X, y):
 def experiment(num_runs, num_points):
     weights_list = []
     for _ in range(num_runs):
-        X, y = generate_fixed_noisy_data(num_points, noise_ratio=0.1)
+        X, y = generate_fixed_noisy_data(num_points)
         X_transformed = transform_data(X)
         w = linear_regression_simple(X_transformed, y)
         weights_list.append(w)
@@ -289,16 +289,16 @@ def experiment(num_runs, num_points_train, num_points_test):
         X_train, y_train = generate_fixed_noisy_data(num_points_train)
         X_train_transformed = transform_data(X_train)
         w = linear_regression_simple(X_train_transformed, y_train)        
-        X_test, y_test = generate_fixed_noisy_data(num_points_test, noise_ratio=0.0)
+        X_test, y_test = generate_fixed_noisy_data(num_points_test, noisy_ratio=0.0)
         X_test_transformed = transform_data(X_test)
         eout = calculate_eout(X_test_transformed, y_test, w)
         eout_list.append(eout)
     return np.mean(eout_list), np.std(eout_list)
 
-# num_runs = 1000
-# num_points_train = 1000
-# num_points_test = 1000
+num_runs = 1000
+num_points_train = 1000
+num_points_test = 1000
 
-# mean_eout, std_eout = experiment(num_runs, num_points_train, num_points_test)
-# print(f"Média de E_out: {mean_eout}")
-# print(f"Desvio padrão de E_out: {std_eout}")
+mean_eout, std_eout = experiment(num_runs, num_points_train, num_points_test)
+print(f"Média de E_out: {mean_eout}")
+print(f"Desvio padrão de E_out: {std_eout}")
